@@ -13,9 +13,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        window = UIWindow(frame: UIScreen.main.bounds)
+        var vc: UIViewController
+        
+        UserDefaults.standard.set("jnofskdma", forKey: "accesToken") // kasnije ovo maknuti kada se napravi login
+        
+        if UserDefaults.standard.string(forKey: "accesToken") != nil {
+            vc = InitialViewController()
+        } else {
+            vc = LoginViewController()
+        }
+        
+        window?.rootViewController = vc
+        window?.makeKeyAndVisible()
         return true
     }
 
