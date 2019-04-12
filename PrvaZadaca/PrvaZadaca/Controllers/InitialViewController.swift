@@ -40,17 +40,16 @@ class InitialViewController: UIViewController {
             
             if let quizzes = quizzes {
                 let result = self.countNumberOfOccurences(for: "NBA", in: quizzes)
+                let randomQuiz = Int.random(in: 0..<quizzes.count)
                 
                 DispatchQueue.main.async {
                     self.funFactLabel.text = "Number of questions with string 'NBA' is \(result)"
-                    self.titleLabel.text = quizzes.first?.title
-                    self.titleLabel.backgroundColor = quizzes.first?.category?.color
+                    self.titleLabel.text = quizzes[randomQuiz].title
+                    self.titleLabel.backgroundColor = quizzes[randomQuiz].category?.color
                 }
                 
-                if let quiz = quizzes.first {
-                    self.fetchImage(quiz: quiz)
-                    self.showQuestion(quiz: quiz)
-                }
+                self.fetchImage(quiz: quizzes[randomQuiz])
+                self.showQuestion(quiz: quizzes[randomQuiz])
             }
         }
     }
@@ -71,7 +70,8 @@ class InitialViewController: UIViewController {
     func showQuestion(quiz: Quiz) {
         DispatchQueue.main.async {
             if let questionView = Bundle.main.loadNibNamed("QuestionView", owner: nil, options: [:])?.first as? QuestionView {
-                if let question = quiz.questions?.first {
+                let randomQuestion = Int.random(in: 0..<(quiz.questions?.count ?? 0))
+                if let question = quiz.questions?[randomQuestion] {
                     self.viewContainer.addSubview(questionView)
                     questionView.questionLabel.text = question.question
                     questionView.setButtons(question: question)

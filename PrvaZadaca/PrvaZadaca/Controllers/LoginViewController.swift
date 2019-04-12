@@ -15,7 +15,7 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var errorLabel: UILabel!
     
     @IBAction func login(_ sender: UIButton) {
-        login()
+        loginUser()
     }
     
     override func viewDidLoad() {
@@ -24,8 +24,8 @@ class LoginViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 
-    func login() {
-        let urlString = "​https://iosquiz.herokuapp.com/api/session"
+    func loginUser() {
+        let urlString = "https://iosquiz.herokuapp.com/api/session"
         
         if let url = URL(string: urlString) {
             var request = URLRequest(url: url)
@@ -38,7 +38,7 @@ class LoginViewController: UIViewController {
                 ]
             
             print(parameters)
-
+            
             do {
                 request.httpBody = try JSONSerialization.data(withJSONObject:
                     parameters, options: .prettyPrinted)
@@ -48,37 +48,38 @@ class LoginViewController: UIViewController {
 
             URLSession.shared.dataTask(with: request) { (data, response, err) in
                 if err != nil {
-                    DispatchQueue.main.async {
-                        self.errorLabel.isHidden = false
-                        self.errorLabel.text = "Invalid login parameters."
-                    }
-                    print("Wrong username or password.")
+                    self.displayError(with: "Invalid request.")
                     return
                 }
                 
                 if let data = data {
                     do {
-                        let token = try JSONDecoder().decode(String.self, from: data)
-                        UserDefaults.standard.set(token, forKey: "accesToken")
-                        print("Successfuly logged in with token: ", token)
-                    } catch let error {
-                        DispatchQueue.main.async {
-                            self.errorLabel.isHidden = false
-                            self.errorLabel.text = "Invalid token."
+                        let json = try JSONSerialization.jsonObject(with: data, options: [])
+                        if let jsonDict = json as? [String : Any], let token = jsonDict["token"] as? String {
+                            UserDefaults.standard.set(token, forKey: "accesToken")
+                            print("Successfuly logged in with token: ", token)
+                            DispatchQueue.main.async {
+                                let vc = InitialViewController()
+                                self.present(vc, animated: true, completion: nil)
+                            }
+                        } else {
+                            self.displayError(with: "Invalid login parameters.")
                         }
-                        
-                        print("Couldn't parse token.", error)
+                    } catch {
+                        self.displayError(with: "Invalid token.")
                     }
                 }
-                
-                let vc = InitialViewController()
-                self.present(vc, animated: true, completion: nil)
             }.resume()
         } else {
-            DispatchQueue.main.async {
-                self.errorLabel.isHidden = false
-                self.errorLabel.text = "Invalid login parameters."
-            }
+            print("Can't create URL.")
+            self.displayError(with: "URL can't be reached.")
+        }
+    }
+    
+    func displayError(with text: String) {
+        DispatchQueue.main.async {
+            self.errorLabel.isHidden = false
+            self.errorLabel.text = text
         }
     }
 
