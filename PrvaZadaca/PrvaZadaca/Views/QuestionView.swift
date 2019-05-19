@@ -8,40 +8,45 @@
 
 import UIKit
 
+protocol QuestionViewDelegate: class {
+    func nextQuestion()
+    func correctAnswer()
+}
+
 class QuestionView: UIView {
 
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet var answerButtons: [UIButton]!
+    
+    var question: Question?
+    weak var delegate: QuestionViewDelegate?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
     
     func setButtons(question: Question) {
+        self.question = question
+        
         DispatchQueue.main.async {
             for (index, button) in self.answerButtons.enumerated() {
                 button.setTitle(question.answers?[index], for: .normal)
-                button.setBackgroundColor(color: .red, forState: .highlighted)
-            }
-            
-            if let answer = question.correctAnswer {
-                self.answerButtons?[answer].setBackgroundColor(color: .green, forState: .highlighted)
+                button.addTarget(self, action: #selector(self.setAnswerColor), for: .touchUpInside)
             }
         }
     }
     
-}
-
-extension UIButton {
-    func setBackgroundColor(color: UIColor, forState: UIControl.State) {
-        self.clipsToBounds = true  // add this to maintain corner radius
-        UIGraphicsBeginImageContext(CGSize(width: 1, height: 1))
-        if let context = UIGraphicsGetCurrentContext() {
-            context.setFillColor(color.cgColor)
-            context.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
-            let colorImage = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-            self.setBackgroundImage(colorImage, for: forState)
+    @objc func setAnswerColor(sender: UIButton) {
+        if let correct = question?.correctAnswer {
+            if correct == answerButtons.firstIndex(of: sender) {
+                sender.backgroundColor = .green
+                delegate?.correctAnswer()
+            } else {
+                sender.backgroundColor = .red
+            }
         }
+        
+        delegate?.nextQuestion()
     }
+    
 }

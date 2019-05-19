@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  PrvaZadaca
+//  DrugaZadaca
 //
-//  Created by Marko Krajina on 04/04/2019.
+//  Created by Marko Krajina on 06/05/2019.
 //  Copyright © 2019 Marko Krajina. All rights reserved.
 //
 
@@ -17,8 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         var vc: UIViewController
         
+//        UserDefaults.standard.set("sondcm", forKey: "accesToken")
+        
         if UserDefaults.standard.string(forKey: "accesToken") != nil {
-            vc = InitialViewController()
+            vc = UINavigationController(rootViewController: QuizzesViewController())
+            vc.navigationItem.title = "QUIZ GAME"
         } else {
             vc = LoginViewController()
         }

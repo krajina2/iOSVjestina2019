@@ -37,8 +37,6 @@ class LoginViewController: UIViewController {
                     "password": self.passwordField.text!
                 ]
             
-            print(parameters)
-            
             do {
                 request.httpBody = try JSONSerialization.data(withJSONObject:
                     parameters, options: .prettyPrinted)
@@ -59,8 +57,9 @@ class LoginViewController: UIViewController {
                             UserDefaults.standard.set(token, forKey: "accesToken")
                             print("Successfuly logged in with token: ", token)
                             DispatchQueue.main.async {
-                                let vc = InitialViewController()
-                                self.present(vc, animated: true, completion: nil)
+                                let vc = UINavigationController(rootViewController: QuizzesViewController())
+                                vc.navigationItem.title = "QUIZ GAME"
+                                self.view.window?.rootViewController = UINavigationController(rootViewController: QuizzesViewController())
                             }
                         } else {
                             self.displayError(with: "Invalid login parameters.")
